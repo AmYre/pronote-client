@@ -1,58 +1,89 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useTable } from 'react-table';
 import { Button } from '@mantine/core';
-import { IconPower } from '@tabler/icons';
-import { auth } from '../firebase';
+import Table from './Table.js';
 
-const Header = () => {
+const Supervisor = () => {
 	const [resits, setResits] = useState();
+	const [grades, setGrades] = useState();
 
-	let navigate = useNavigate();
-
-	const data = React.useMemo(() => resits || [], [resits]);
+	const resitsHeaders = [
+		{
+			Header: 'Rattrapage',
+			accessor: 'name', // accessor is the "key" in the data
+		},
+		{
+			Header: 'Sujet',
+			accessor: 'exam',
+		},
+		{
+			Header: 'Date',
+			accessor: 'resitDate',
+		},
+		{
+			Header: 'Status',
+			accessor: 'status',
+		},
+		{
+			Header: 'Professeur',
+			accessor: 'teacher.email',
+		},
+		{
+			Header: "Nombre d'élèves",
+			accessor: 'teacher.id',
+		},
+	];
+	const gradesHeaders = [
+		{
+			Header: 'Nom',
+			accessor: 'student.lastName', // accessor is the "key" in the data
+		},
+		{
+			Header: 'Prenom',
+			accessor: 'student.name',
+		},
+		{
+			Header: 'Note',
+			accessor: 'grade',
+		},
+	];
 
 	useEffect(() => {
 		fetch('http://localhost:9000/resits')
 			.then((res) => res.json())
-			.then((data) => setResits(data))
+			.then((data) => {
+				setResits(data);
+			})
 			.catch((err) => console.log('catched fetch error :', err));
 	}, []);
 
-	const columns = React.useMemo(
-		() => [
-			{
-				Header: 'Rattrapage',
-				accessor: 'name', // accessor is the "key" in the data
-			},
-			{
-				Header: 'Sujet',
-				accessor: 'exam',
-			},
-			{
-				Header: 'Date',
-				accessor: 'resitDate',
-			},
-			{
-				Header: 'Status',
-				accessor: 'status',
-			},
-			{
-				Header: 'Professeur',
-				accessor: 'teacher.email',
-			},
-		],
-		[]
-	);
+	useEffect(() => {
+		fetch('http://localhost:9000/grades')
+			.then((res) => res.json())
+			.then((data) => {
+				setGrades(data);
+			})
+			.catch((err) => console.log('catched fetch error :', err));
+	}, []);
 
-	console.log(resits);
-
-	const tableInstance = useTable({ columns, data });
-
-	const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = tableInstance;
+	const onSingleEdit = (row) => {
+		fetch(`http://localhost:9000/gradesbyresit?id=${row.id}`)
+			.then((res) => res.json())
+			.then((data) => setGrades(data))
+			.catch((err) => console.log('catched fetch error :', err));
+	};
+	const onSingleDelete = (row) => {
+		console.log('delited !', row.id);
+	};
 
 	const filterByStatus = (status) => {
 		fetch(`http://localhost:9000/resits/${status}`)
+			.then((res) => res.json())
+			.then((data) => setResits(data))
+			.catch((err) => console.log('catched fetch error :', err));
+	};
+
+	const reset = () => {
+		fetch(`http://localhost:9000/resits`)
 			.then((res) => res.json())
 			.then((data) => setResits(data))
 			.catch((err) => console.log('catched fetch error :', err));
@@ -63,59 +94,24 @@ const Header = () => {
 			<h2 className='text-center text-2xl font-bold m-8'>Bienvenue Julien</h2>
 
 			<div className=''>
-				<Button onClick={() => filterByStatus('ef')} className='inline-flex font-bold mt-8 mb-8 bg-blue-300 mr-4 px-6 py-2 text-white rounded shadow hover:bg-blue-500 transition duration-300'>
+				<Button onClick={() => filterByStatus('ef')} className='inline-flex font-bold mt-8 mb-8 bg-teal-300 mr-4 px-6 py-2 text-white rounded shadow hover:bg-teal-500 transition duration-300'>
 					Effectué
 				</Button>
-				<Button onClick={() => filterByStatus('efno')} className='inline-flex font-bold mt-8 mb-8 bg-blue-300 mr-4 px-6 py-2 text-white rounded shadow hover:bg-blue-500 transition duration-300'>
+				<Button onClick={() => filterByStatus('efno')} className='inline-flex font-bold mt-8 mb-8 bg-teal-300 mr-4 px-6 py-2 text-white rounded shadow hover:bg-teal-500 transition duration-300'>
 					Effectué non noté
 				</Button>
-				<Button onClick={() => filterByStatus('noef')} className='inline-flex font-bold mt-8 mb-8 bg-blue-300 mr-4 px-6 py-2 text-white rounded shadow hover:bg-blue-500 transition duration-300'>
+				<Button onClick={() => filterByStatus('noef')} className='inline-flex font-bold mt-8 mb-8 bg-teal-300 mr-4 px-6 py-2 text-white rounded shadow hover:bg-teal-500 transition duration-300'>
 					Non effectué
 				</Button>
+				<Button onClick={reset} className='inline-flex font-bold mt-8 mb-8 bg-teal-300 mr-4 px-6 py-2 text-white rounded shadow hover:bg-teal-500 transition duration-300'>
+					Tous
+				</Button>
 			</div>
-			<>
-				<table {...getTableProps()}>
-					<thead>
-						{headerGroups.map((headerGroup) => (
-							<tr {...headerGroup.getHeaderGroupProps()}>
-								{headerGroup.headers.map((column) => (
-									<th {...column.getHeaderProps()}>{column.render('Header')}</th>
-								))}
-							</tr>
-						))}
-					</thead>
-					<tbody {...getTableBodyProps()}>
-						{resits ? (
-							rows.map((row) => {
-								prepareRow(row);
-								return (
-									<tr {...row.getRowProps()}>
-										{row.cells.map((cell) => {
-											return <td {...cell.getCellProps()}>{cell.render('Cell')}</td>;
-										})}
-									</tr>
-								);
-							})
-						) : (
-							<tr>
-								<td>...</td>
-							</tr>
-						)}
-					</tbody>
-				</table>
-			</>
+			{resits && <Table dataTable={resits} headers={resitsHeaders} onSingleEdit={onSingleEdit} onSingleDelete={onSingleDelete} />}
 
-			{console.log(resits)}
-
-			<IconPower
-				color='green'
-				className='absolute right-4 top-4'
-				onClick={() => {
-					auth.signOut();
-					navigate(`/`);
-				}}></IconPower>
+			{grades && <Table dataTable={grades} headers={gradesHeaders} onSingleEdit={onSingleEdit} onSingleDelete={onSingleDelete} />}
 		</div>
 	);
 };
 
-export default Header;
+export default Supervisor;

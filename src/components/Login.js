@@ -23,7 +23,9 @@ const Login = () => {
 	let navigate = useNavigate();
 
 	const handleSubmit = async (e) => {
-		auth.signInWithEmailAndPassword(email, password).then(navigate(`/home`)).catch(setError('Votre e-mail ou votre mot de passe est incorrect.'));
+		auth.signInWithEmailAndPassword(email, password)
+		.then(navigate(`/home`))
+		.catch(setError('Votre e-mail ou votre mot de passe est incorrect.'));
 	};
 
 	return (

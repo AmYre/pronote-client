@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '../firebase';
 
+import MenuWrapper from '../components/MenuWrapper';
+
 import Teacher from '../components/Teacher';
 import Overseer from '../components/Overseer';
 import Supervisor from '../components/Supervisor';
@@ -31,9 +33,13 @@ const CheckAuth = () => {
 		<>
 			{user ? (
 				<div className='bg-white h-screen'>
-					{supervisor && <Supervisor supervisor={supervisor} setSupervisor={setSupervisor} />}
-					{teacher && <Teacher teacher={teacher} setTeacher={setTeacher} />}
-					{overseer && <Overseer overseer={overseer} setOverseer={setOverseer} />}
+					{supervisor && (
+						<MenuWrapper>
+							<Supervisor />
+						</MenuWrapper>
+					)}
+					{teacher && <Teacher />}
+					{overseer && <Overseer />}
 				</div>
 			) : (
 				<p>Nous chargeons votre page</p>
