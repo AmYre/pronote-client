@@ -6,8 +6,8 @@ import { Button } from '@mantine/core';
 
 const Teacher = () => {
 
-	const [data, setData] = useState();
 	const [grades, setGrades] = useState();
+	const [teachers, setTeachers] = useState();
 	const [resits, setResits] = useState();
 
 	
@@ -17,27 +17,8 @@ const Teacher = () => {
 		fetch("http://localhost:9000/resits")
 		.then(response => response.json())
 		.then(response => {
-			setData(response);
-			//console.log(format(response[0].resitDate,'dd-MM-yyyy'));
-		}
-			)
-		.catch(error => console.log(error))
-
-		
-
-	}, []);
-
-	useEffect(() => {
-		fetch("http://localhost:9000/grades")
-		.then(responseOnHttp => responseOnHttp.json())
-		.then(data => setGrades(data))
-		.catch(error => console.log("catched fetch error :", error))
-
-
-
-		//Creation d'un nouveau objet qui s'appele "element" pour nouveau element
-		if(data) {
-			setResits(data.map((element) => {return {
+			//Creation d'un nouveau objet qui s'appele "element" pour nouveau element
+			setResits(response.map((element) => {return {
 				//(1=resit=le mouveau objet) (2=l'objet resit) (3=id de l'encient objet) 
 				id : element.id, 
 				name : element.name,
@@ -46,13 +27,30 @@ const Teacher = () => {
 				teacherName : element.teacher.lastName,
 				oversserName : element.overseer.name,
 				status : element.status,
-			}}))
-			
+				teacherId : element.teacher.id,
+			}}));
+			//console.log(format(response[0].resitDate,'dd-MM-yyyy'));
 		}
-
+			)
+		.catch(error => console.log(error))
 		
+		
+	}, []);
 
-	}, [data])
+	useEffect(() => {
+		fetch("http://localhost:9000/grades")
+		.then(responseOnHttp => responseOnHttp.json())
+		.then(data => setGrades(data))
+		.catch(error => console.log("catched fetch error :", error))
+
+		fetch("http://localhost:9000/teachers")
+		.then(responseOnHttp => responseOnHttp.json())
+		.then(data => setTeachers(data))
+		.catch(error => console.log("catched fetch error :", error))
+
+	}, [])
+
+
 
 	const resitsHeaders = [
 		{
@@ -83,6 +81,10 @@ const Teacher = () => {
 			Header: "Status",
 			accessor: 'status',
 		},
+		{
+			Header: "Id du professeur",
+			accessor: 'teacherId',
+		},
 	];
 
 	const onSingleEdit = (row) => {
@@ -92,6 +94,13 @@ const Teacher = () => {
 		console.log('delited !', row.id);
 	};
 	
+	const filterByTeacherId = (id) => {
+		fetch(`http://localhost:9000/teacherById?id=${id}`)
+		.then(responseOnHttp => responseOnHttp.json())
+		.then(data => setResits(data))
+		.catch(error => console.log("catched fetch error :", error))
+		console.log(id)
+	}
 
 	return (
 		<div className='content-center'>
@@ -100,10 +109,19 @@ const Teacher = () => {
 
 				<h2 className='text-center text-2xl font-bold m-8'>Bienvenue</h2>
 
+				{
+					teachers && teachers.map(teacher => (
+						<button key={teacher.id} onClick={() => filterByTeacherId(teacher.id)} className='inline-flex font-bold mt-8 mb-8 bg-teal-300 mr-4 px-6 py-2 text-white rounded shadow hover:bg-teal-500 transition duration-300'>
+							{teacher.name}
+						</button>))
+				}
+				
+
+
 				{ 
 					resits && <Table dataTable={resits} headers={resitsHeaders} onSingleEdit={onSingleEdit} onSingleDelete={onSingleDelete}/>
 				}
-				
+	
 			</div>
 		</div>
 	);
