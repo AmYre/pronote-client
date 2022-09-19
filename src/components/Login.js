@@ -1,15 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '../firebase';
 
-import Teacher from '../components/Teacher';
-import Overseer from '../components/Overseer';
-import Supervisor from '../components/Supervisor';
-
 import { TextInput } from '@mantine/core';
-import { IconShieldCheck } from '@tabler/icons';
-import { IconAt } from '@tabler/icons';
+import { IconShieldCheck, IconAt } from '@tabler/icons';
 import bg from '../img/bg-full.png';
 import logo from '../img/logo.png';
 
