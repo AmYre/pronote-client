@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from '@mantine/core';
+import { format } from 'date-fns';
 import Table from './Table.js';
 
 const Supervisor = () => {
-	const [resits, setResits] = useState();
 	const [grades, setGrades] = useState();
+	const [resits, setResits] = useState();
+	const [selectedResit, setSelectedResit] = useState();
+	const [step, setStep] = useState('resitsList');
 
 	const resitsHeaders = [
 		{
@@ -25,11 +28,11 @@ const Supervisor = () => {
 		},
 		{
 			Header: 'Professeur',
-			accessor: 'teacher.email',
+			accessor: 'teacherName',
 		},
 		{
 			Header: "Nombre d'élèves",
-			accessor: 'teacher.id',
+			accessor: 'overseerName',
 		},
 	];
 	const gradesHeaders = [
@@ -51,12 +54,14 @@ const Supervisor = () => {
 		fetch('http://localhost:9000/resits')
 			.then((res) => res.json())
 			.then((data) => {
-				setResits(data);
+				setResits(
+					data.map((resit) => {
+						return { id: resit.id, name: resit.name, duration: resit.duration, exam: resit.exam, resitDate: format(resit.resitDate, 'dd-MM-yyyy'), status: resit.status, teacherName: resit.teacher.name, overseerName: resit.overseer.name };
+					})
+				);
 			})
 			.catch((err) => console.log('catched fetch error :', err));
-	}, []);
 
-	useEffect(() => {
 		fetch('http://localhost:9000/grades')
 			.then((res) => res.json())
 			.then((data) => {
@@ -70,46 +75,35 @@ const Supervisor = () => {
 			.then((res) => res.json())
 			.then((data) => setGrades(data))
 			.catch((err) => console.log('catched fetch error :', err));
+
+		setStep('studentList');
+		setSelectedResit(row);
 	};
 	const onSingleDelete = (row) => {
 		console.log('delited !', row.id);
 	};
 
-	const filterByStatus = (status) => {
-		fetch(`http://localhost:9000/resits/${status}`)
-			.then((res) => res.json())
-			.then((data) => setResits(data))
-			.catch((err) => console.log('catched fetch error :', err));
-	};
-
-	const reset = () => {
-		fetch(`http://localhost:9000/resits`)
-			.then((res) => res.json())
-			.then((data) => setResits(data))
-			.catch((err) => console.log('catched fetch error :', err));
-	};
-
 	return (
 		<div className='p-4'>
-			<h2 className='text-center text-2xl font-bold m-8'>Bienvenue Julien</h2>
+			{resits && step === 'resitsList' && (
+				<>
+					<h2 className='text-center text-2xl font-bold m-8'>Liste des Rattrapages</h2>
+					<Table dataTable={resits} headers={resitsHeaders} onSingleEdit={onSingleEdit} onSingleDelete={onSingleDelete} />
+				</>
+			)}
 
-			<div className=''>
-				<Button onClick={() => filterByStatus('ef')} className='inline-flex font-bold mt-8 mb-8 bg-teal-300 mr-4 px-6 py-2 text-white rounded shadow hover:bg-teal-500 transition duration-300'>
-					Effectué
-				</Button>
-				<Button onClick={() => filterByStatus('efno')} className='inline-flex font-bold mt-8 mb-8 bg-teal-300 mr-4 px-6 py-2 text-white rounded shadow hover:bg-teal-500 transition duration-300'>
-					Effectué non noté
-				</Button>
-				<Button onClick={() => filterByStatus('noef')} className='inline-flex font-bold mt-8 mb-8 bg-teal-300 mr-4 px-6 py-2 text-white rounded shadow hover:bg-teal-500 transition duration-300'>
-					Non effectué
-				</Button>
-				<Button onClick={reset} className='inline-flex font-bold mt-8 mb-8 bg-teal-300 mr-4 px-6 py-2 text-white rounded shadow hover:bg-teal-500 transition duration-300'>
-					Tous
-				</Button>
-			</div>
-			{resits && <Table dataTable={resits} headers={resitsHeaders} onSingleEdit={onSingleEdit} onSingleDelete={onSingleDelete} />}
+			{console.log(selectedResit)}
 
-			{grades && <Table dataTable={grades} headers={gradesHeaders} onSingleEdit={onSingleEdit} onSingleDelete={onSingleDelete} />}
+			{grades && step === 'studentList' && (
+				<>
+					<h2 className='text-center text-2xl font-bold m-8'>Liste des Étudiants</h2>
+					<h3 className='text-center text-2xl font-bold m-8'>
+						Module {selectedResit.name} du {selectedResit.date}
+					</h3>
+					<p>revenir</p>
+					<Table dataTable={grades} headers={gradesHeaders} onSingleEdit={onSingleEdit} onSingleDelete={onSingleDelete} />
+				</>
+			)}
 		</div>
 	);
 };
