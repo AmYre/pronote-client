@@ -94,10 +94,15 @@ const Teacher = () => {
 		console.log('delited !', row.id);
 	};
 	
+	//Creation d'une fonction pour trier les prof par leurs ID
 	const filterByTeacherId = (id) => {
+		//Recuperation des info de l'URL envoyer par l'API REST (notre back-end)
 		fetch(`http://localhost:9000/teacherById?id=${id}`)
+		//(.then) en attendant les données envoyè par le back puis les transformé en .json
 		.then(responseOnHttp => responseOnHttp.json())
+		//Les info de notre route URL son récupérer dans  "data" puis son stovké dan setResits pour nous fournir das données utilisable 
 		.then(data => setResits(data))
+		//Attraper une erreur si elle se produit
 		.catch(error => console.log("catched fetch error :", error))
 		console.log(id)
 	}
@@ -110,6 +115,9 @@ const Teacher = () => {
 				<h2 className='text-center text-2xl font-bold m-8'>Bienvenue</h2>
 
 				{
+					//Création d'une boucle avec son bouton pour la selection
+					//si il y a des teachers allors
+					//nous bouclons sur les teachers pour inclure la fonction créer précédemment filterByTeacherId()
 					teachers && teachers.map(teacher => (
 						<button key={teacher.id} onClick={() => filterByTeacherId(teacher.id)} className='inline-flex font-bold mt-8 mb-8 bg-teal-300 mr-4 px-6 py-2 text-white rounded shadow hover:bg-teal-500 transition duration-300'>
 							{teacher.name}
