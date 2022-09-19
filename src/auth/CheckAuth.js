@@ -33,13 +33,7 @@ const CheckAuth = () => {
 		<>
 			{user ? (
 				<div className='bg-white h-screen'>
-					{supervisor && (
-						<MenuWrapper>
-							<Supervisor />
-						</MenuWrapper>
-					)}
-					{teacher && <Teacher />}
-					{overseer && <Overseer />}
+					<MenuWrapper>{supervisor ? <Supervisor /> : teacher ? <Teacher /> : overseer && <Overseer />}</MenuWrapper>
 				</div>
 			) : (
 				<p>Nous chargeons votre page</p>
