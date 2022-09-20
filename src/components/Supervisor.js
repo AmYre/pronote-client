@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Button } from '@mantine/core';
 import { format } from 'date-fns';
+import { IconArrowBack } from '@mantine/core';
 import Table from './Table.js';
 
 const Supervisor = () => {
@@ -20,7 +20,7 @@ const Supervisor = () => {
 		},
 		{
 			Header: 'Date',
-			accessor: 'resitDate',
+			accessor: 'date',
 		},
 		{
 			Header: 'Status',
@@ -38,11 +38,11 @@ const Supervisor = () => {
 	const gradesHeaders = [
 		{
 			Header: 'Nom',
-			accessor: 'student.lastName', // accessor is the "key" in the data
+			accessor: 'studentLastName', // accessor is the "key" in the data
 		},
 		{
-			Header: 'Prenom',
-			accessor: 'student.name',
+			Header: 'Prénom',
+			accessor: 'studentName',
 		},
 		{
 			Header: 'Note',
@@ -56,7 +56,7 @@ const Supervisor = () => {
 			.then((data) => {
 				setResits(
 					data.map((resit) => {
-						return { id: resit.id, name: resit.name, duration: resit.duration, exam: resit.exam, resitDate: format(resit.resitDate, 'dd-MM-yyyy'), status: resit.status, teacherName: resit.teacher.name, overseerName: resit.overseer.name };
+						return { id: resit.id, name: resit.name, duration: resit.duration, exam: resit.exam, date: format(resit.resitDate, 'dd-MM-yyyy'), status: resit.status, teacherName: resit.teacher.name, overseerName: resit.overseer.name };
 					})
 				);
 			})
@@ -65,7 +65,11 @@ const Supervisor = () => {
 		fetch('http://localhost:9000/grades')
 			.then((res) => res.json())
 			.then((data) => {
-				setGrades(data);
+				setGrades(
+					data.map((grade) => {
+						return { studentName: grade.student.name, studentLastName: grade.student.lastName, grade: grade.grade, date: format(grade.resit.resitDate, 'dd-MM-yyyy'), resitName: grade.resit.name };
+					})
+				);
 			})
 			.catch((err) => console.log('catched fetch error :', err));
 	}, []);
@@ -96,11 +100,11 @@ const Supervisor = () => {
 
 			{grades && step === 'studentList' && (
 				<>
-					<h2 className='text-center text-2xl font-bold m-8'>Liste des Étudiants</h2>
-					<h3 className='text-center text-2xl font-bold m-8'>
-						Module {selectedResit.name} du {selectedResit.date}
-					</h3>
-					<p>revenir</p>
+					<h2 className='text-center text-2xl font-bold mt-8'>Liste des Étudiants</h2>
+					<p className='text-center'>
+						Pour le module <span className='font-medium italic uppercase'>{selectedResit.name}</span> du {selectedResit.date}
+					</p>
+					<IconArrowBack />
 					<Table dataTable={grades} headers={gradesHeaders} onSingleEdit={onSingleEdit} onSingleDelete={onSingleDelete} />
 				</>
 			)}
