@@ -9,6 +9,7 @@ const Teacher = () => {
 	const [grades, setGrades] = useState();
 	const [teachers, setTeachers] = useState();
 	const [resits, setResits] = useState();
+	const [selectedResit, setSelectedResit] = useState();
 
 	
 	
@@ -40,14 +41,19 @@ const Teacher = () => {
 	useEffect(() => {
 		fetch("http://localhost:9000/grades")
 		.then(responseOnHttp => responseOnHttp.json())
-		.then(data => setGrades(data))
+		.then(data => {
+			setGrades(data.map((gradeElement) => {return {
+				studentId : gradeElement.student.id,
+				studentName : gradeElement.student.name,
+				studentLastName : gradeElement.student.lastName,
+				studentGrade : gradeElement.grade,
+			}}));})
 		.catch(error => console.log("catched fetch error :", error))
 
 		fetch("http://localhost:9000/teachers")
 		.then(responseOnHttp => responseOnHttp.json())
 		.then(data => setTeachers(data))
 		.catch(error => console.log("catched fetch error :", error))
-
 	}, [])
 
 
@@ -87,8 +93,50 @@ const Teacher = () => {
 		},
 	];
 
-	const onSingleEdit = (row) => {
-		console.log("dfdg")
+	const gradesHeaders = [
+		{
+			Header: 'ID de l\'étudiant',
+			accessor: 'studentId', // accessor is the "key" in the data
+		},
+		{
+			Header: 'Prenom de l\'étudiant',
+			accessor: 'studentName',
+		},
+		{
+			Header: 'Nom de l\'étudiant',
+			accessor: 'studentLastName',
+		},
+		{
+			Header: 'Note de l\'étudiant',
+			accessor: 'studentGrade',
+		},
+		// {
+		// 	Header: 'Professeur',
+		// 	accessor: 'teacherName',
+		// },
+		// {
+		// 	Header: "Surveillant",
+		// 	accessor: 'oversserName',
+		// },
+		// {
+		// 	Header: "Status",
+		// 	accessor: 'status',
+		// },
+		// {
+		// 	Header: "Id du professeur",
+		// 	accessor: 'teacherId',
+		// },
+	];
+
+
+	const onSelectedResit = (row) => {
+		fetch(`http://localhost:9000/resitbyid?id=${row.id}`)
+		.then(responseOnHttp => responseOnHttp.json())
+		.then((data) => console.log(data))
+		.catch(error => console.log("catched fetch error :", error))
+
+		setSelectedResit(row);
+
 	};
 	const onSingleDelete = (row) => {
 		console.log('delited !', row.id);
@@ -104,7 +152,7 @@ const Teacher = () => {
 		.then(data => setResits(data))
 		//Attraper une erreur si elle se produit
 		.catch(error => console.log("catched fetch error :", error))
-		console.log(id)
+		//console.log(id)
 	}
 
 	return (
@@ -127,7 +175,11 @@ const Teacher = () => {
 
 
 				{ 
-					resits && <Table dataTable={resits} headers={resitsHeaders} onSingleEdit={onSingleEdit} onSingleDelete={onSingleDelete}/>
+					//
+					resits && <Table dataTable={resits} headers={resitsHeaders} onSingleEdit={onSelectedResit} onSingleDelete={onSingleDelete}/>
+				}
+				{ 
+					grades && <Table dataTable={grades} headers={gradesHeaders} onSingleEdit={onSelectedResit} onSingleDelete={onSingleDelete}/>
 				}
 	
 			</div>
