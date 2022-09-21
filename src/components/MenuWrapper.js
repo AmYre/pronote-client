@@ -35,7 +35,7 @@ const MenuWrapper = ({ children }) => {
 					<div className=''>
 						<img src={logo} alt='logo' className='w-24 pl-8 pt-4' />
 					</div>
-					<div className='w-full text-2xl text-gray-600 font-bold m-8'>Bienvenue UserName</div>
+					<div className='w-full text-2xl text-gray-600 font-bold m-8'>Bienvenue Overseers</div>
 
 					<ActionIcon
 						className='mr-8 mt-2'
