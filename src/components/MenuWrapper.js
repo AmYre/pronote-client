@@ -33,9 +33,9 @@ const MenuWrapper = ({ children }) => {
 			<div className='w-4/5 bg-gray-200'>
 				<div className='flex items-center justify-between h-[96px] bg-white shadow'>
 					<div className=''>
-						<img src={logo} alt='logo' className='w-24 pl-8 pt-4' />
+						<img src={logo} alt='logo' className='w-[180px] pl-6 pt-4' />
 					</div>
-					<div className='w-full text-2xl text-gray-600 font-bold m-8'>Bienvenue UserName</div>
+					<div className='w-full text-2xl text-right text-gray-600 font-bold m-8'>Bienvenue UserName</div>
 
 					<ActionIcon
 						className='mr-8 mt-2'

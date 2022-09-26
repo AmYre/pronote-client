@@ -1,40 +1,42 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { format } from 'date-fns';
-import { IconArrowBack } from '@tabler/icons';
+import React, { useEffect, useState } from 'react';
+import { format, getTime } from 'date-fns';
+import { ActionIcon, Button } from '@mantine/core';
+import { IconArrowBack, IconCirclePlus } from '@tabler/icons';
+import { useForm } from 'react-hook-form';
 
 import Table from './Table.js';
 
 const Supervisor = () => {
-	const [grades, setGrades] = useState();
 	const [resits, setResits] = useState();
+	const [grades, setGrades] = useState();
+	const [overseers, setOverseers] = useState();
+	const [teachers, setTeachers] = useState();
 	const [selectedResit, setSelectedResit] = useState();
 	const [step, setStep] = useState('resitsList');
-
-	const myref = useRef('input');
 
 	useEffect(() => {
 		fetch('http://localhost:9000/resits')
 			.then((res) => res.json())
-			.then((data) => {
-				setResits(
-					data.map((resit) => {
-						return { id: resit.id, name: resit.name, duration: resit.duration, exam: resit.exam, date: format(resit.resitDate, 'dd-MM-yyyy'), status: resit.status, teacherName: resit.teacher.name, overseerName: resit.overseer.name };
-					})
-				);
-			})
+			.then((data) => setResits(data))
 			.catch((err) => console.log('catched fetch error :', err));
 
 		fetch('http://localhost:9000/grades')
 			.then((res) => res.json())
-			.then((data) => {
-				setGrades(
-					data.map((grade) => {
-						return { name: grade.student.name, lastName: grade.student.lastName, grade: grade.grade, classroom: grade.student.classroom.name, picture: grade.student.picture };
-					})
-				);
-			})
+			.then((data) => setGrades(data))
+			.catch((err) => console.log('catched fetch error :', err));
+
+		fetch('http://localhost:9000/overseers')
+			.then((res) => res.json())
+			.then((data) => setOverseers(data))
+			.catch((err) => console.log('catched fetch error :', err));
+
+		fetch('http://localhost:9000/teachers')
+			.then((res) => res.json())
+			.then((data) => setTeachers(data))
 			.catch((err) => console.log('catched fetch error :', err));
 	}, []);
+
+	const { register, handleSubmit } = useForm();
 
 	const resitsHeaders = [
 		{
@@ -58,7 +60,13 @@ const Supervisor = () => {
 		},
 		{
 			Header: 'Date',
-			accessor: 'date',
+			Cell: ({
+				cell: {
+					row: {
+						original: { resitDate },
+					},
+				},
+			}) => format(resitDate, 'dd-MM-yyyy'),
 		},
 		{
 			Header: 'Status',
@@ -66,18 +74,22 @@ const Supervisor = () => {
 		},
 		{
 			Header: 'Professeur',
-			accessor: 'teacherName',
+			accessor: 'teacher.name',
 		},
 		{
 			Header: "Nombre d'élèves",
-			accessor: 'overseerName',
+			Cell: ({
+				cell: {
+					row: {
+						original: { id },
+					},
+				},
+			}) => 8,
 		},
 	];
 	const gradesHeaders = [
 		{
 			Header: 'Photo',
-			accessor: 'picture',
-
 			Cell: ({
 				cell: {
 					row: {
@@ -123,39 +135,17 @@ const Supervisor = () => {
 		setStep('studentList');
 		setSelectedResit(row);
 	};
-	const onSingleDelete = (item) => {
-		fetch('http://localhost:9000/postresits' + (item.id ? '/' + item.id : ''), {
-			method: item.id ? 'PUT' : 'POST',
-			headers: {
-				Accept: 'application/json',
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({
-				id: 9,
-				resitDate: null,
-				name: 'montest',
-				exam: 'urltest',
-				status: 'veryf',
-				duration: null,
-			}),
-		});
+	const onSingleDelete = (resit) => {
+		console.log('delete', resit.id);
 	};
-	const test = () => {
-		fetch('http://localhost:9000/addresit', {
-			method: 'POST',
+	const addResit = (resit) => {
+		fetch('http://localhost:9000/addresit' + (resit.id ? '/' + resit.id : ''), {
+			method: resit.id ? 'PUT' : 'POST',
 			headers: {
 				Accept: 'application/json',
 				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify({
-				resitDate: '2022-09-18',
-				name: 'Python',
-				exam: 'urltest',
-				status: 'veryf',
-				duration: '02:00:00',
-				teacher_id: 3,
-				overseer_id: 3,
-			}),
+			body: JSON.stringify({ ...resit, resitDate: getTime(new Date(resit.resitDate)) }),
 		});
 	};
 
@@ -164,6 +154,14 @@ const Supervisor = () => {
 			{resits && step === 'resitsList' && (
 				<>
 					<h2 className='text-center text-2xl font-bold m-8'>Liste des Rattrapages</h2>
+					<ActionIcon
+						title='Créer un rattrapage'
+						onClick={() => {
+							setStep('createResit');
+						}}
+						className='absolute top-28 right-10 cursor-pointer hover:text-teal-500 transition duration-200 hover:shadow-teal-500 hover:scale-[.9]'>
+						<IconCirclePlus size={32} />
+					</ActionIcon>
 					<Table dataTable={resits} headers={resitsHeaders} onSingleEdit={onSingleEdit} onSingleDelete={onSingleDelete} />
 				</>
 			)}
@@ -182,6 +180,67 @@ const Supervisor = () => {
 						}}
 					/>
 					<Table dataTable={grades} headers={gradesHeaders} onSingleEdit={onSingleEdit} onSingleDelete={onSingleDelete} />
+				</>
+			)}
+
+			{step === 'createResit' && (
+				<>
+					<h2 className='text-center text-2xl font-bold mt-8'>Ajouter un rattrapage</h2>
+					<form onSubmit={handleSubmit(addResit)} className='bg-white p-10 m-4 rounded'>
+						<div className='flex flex-col pb-4'>
+							<label className='font-bold text-teal-500'>Nom du Rattrapage</label>
+							<input className='p-2 focus:outline-none' placeholder='...' {...register('name')} required />
+						</div>
+						<div className='flex flex-col pb-4'>
+							<label className='font-bold text-teal-500'>Lien vers le PDF de l'examen</label>
+							<input className='p-2 focus:outline-none' placeholder='Pick one' {...register('exam')} required />
+						</div>
+						<div className='flex pb-4'>
+							<div>
+								<label className='font-bold text-teal-500'>Durée de l'épreuve</label>
+								<input className='p-2 focus:outline-none' type='time' step='1' {...register('duration')} required />
+							</div>
+							<div>
+								<label className='font-bold text-teal-500'>Date de l'épreuve</label>
+								<input className='p-2 focus:outline-none' type='date' {...register('resitDate')} required />
+							</div>
+						</div>
+						<div className='flex pb-4'>
+							<div className='flex flex-col pb-4 pr-8'>
+								<label className='font-bold text-teal-500'>Attribuer un enseignant</label>
+								<select {...register('teacher_id')} required className='p-2 focus:outline-none'>
+									<option selected disabled={true} value=''>
+										Choisir...
+									</option>
+									{teachers.map((teacher) => (
+										<option value={teacher.id}>{teacher.name}</option>
+									))}
+								</select>
+							</div>
+							<div className='flex flex-col pb-4'>
+								<label className='font-bold text-teal-500'>Attribuer un surveillant</label>
+								<select {...register('overseer_id')} required className='p-2 focus:outline-none'>
+									<option selected disabled={true} value=''>
+										Choisir...
+									</option>
+									{overseers.map((overseer) => (
+										<option value={overseer.id}>{overseer.name}</option>
+									))}
+								</select>
+							</div>
+						</div>
+						<input type='hidden' value='noef' {...register('status')} />
+						<Button type='submit' color='teal' className='bg-teal-500'>
+							Créer Rattrapage
+						</Button>
+					</form>
+					<IconArrowBack
+						className='absolute top-28 cursor-pointer hover:text-teal-500 transition duration-200 hover:shadow-teal-500 hover:scale-[.9]'
+						size={38}
+						onClick={() => {
+							setStep('resitsList');
+						}}
+					/>
 				</>
 			)}
 		</div>

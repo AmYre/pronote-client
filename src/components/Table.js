@@ -6,8 +6,6 @@ import { IconArrowsDiagonal, IconTrash, IconSearch } from '@tabler/icons';
 const Table = ({ dataTable, onSingleEdit, onSingleDelete, headers }) => {
 	const data = React.useMemo(() => dataTable || [], [dataTable]);
 
-	console.log(dataTable);
-
 	const columns = React.useMemo(
 		() => [
 			...headers,
