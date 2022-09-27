@@ -1,13 +1,11 @@
 import React from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { auth } from '../firebase';
 import { ActionIcon } from '@mantine/core';
 import logo from '../img/logo.png';
 import { IconSchool, IconChalkboard, IconClipboardList, IconCertificate, IconPower } from '@tabler/icons';
 
 const MenuWrapper = ({ children }) => {
-	let navigate = useNavigate();
-
 	return (
 		<div className='flex'>
 			<nav className='min-h-screen w-1/5 bg-gray-800 text-white'>

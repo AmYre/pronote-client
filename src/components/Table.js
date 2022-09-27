@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTable, useGlobalFilter } from 'react-table';
 import { TextInput, ActionIcon } from '@mantine/core';
-import { IconArrowsDiagonal, IconTrash, IconSearch } from '@tabler/icons';
+import { IconEdit, IconTrash, IconSearch } from '@tabler/icons';
 
 const Table = ({ dataTable, onSingleEdit, onSingleDelete, headers }) => {
 	const data = React.useMemo(() => dataTable || [], [dataTable]);
@@ -18,7 +18,7 @@ const Table = ({ dataTable, onSingleEdit, onSingleDelete, headers }) => {
 							onClick={() => {
 								onSingleEdit(row.original);
 							}}>
-							<IconArrowsDiagonal color='orange' />
+							<IconEdit color='orange' />
 						</ActionIcon>
 						<ActionIcon
 							onClick={async () => {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '../firebase';
-
+import { ContextProvider } from '../GlobalContext';
 import MenuWrapper from '../components/MenuWrapper';
 
 import Teacher from '../components/Teacher';
@@ -33,7 +33,9 @@ const CheckAuth = () => {
 		<>
 			{user ? (
 				<div className='bg-white h-screen'>
-					<MenuWrapper>{supervisor ? <Supervisor /> : teacher ? <Teacher /> : overseer && <Overseer />}</MenuWrapper>
+					<ContextProvider>
+						<MenuWrapper>{supervisor ? <Supervisor /> : teacher ? <Teacher /> : overseer && <Overseer />}</MenuWrapper>
+					</ContextProvider>
 				</div>
 			) : (
 				<p>Nous chargeons votre page</p>
