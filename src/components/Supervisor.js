@@ -4,6 +4,8 @@ import { ActionIcon, Button } from '@mantine/core';
 import { IconArrowBack, IconCirclePlus } from '@tabler/icons';
 import { useGlobalContext } from '../GlobalContext';
 import CreateForm from './CreateForm';
+import { IconCheck } from '@tabler/icons';
+import { Notification } from '@mantine/core';
 
 import Table from './Table.js';
 
@@ -48,6 +50,10 @@ const Supervisor = () => {
 		{
 			Header: 'Professeur',
 			accessor: 'teacher.name',
+		},
+		{
+			Header: 'Surveillant',
+			accessor: 'overseer.name',
 		},
 		{
 			Header: "Nombre d'élèves",
@@ -146,6 +152,9 @@ const Supervisor = () => {
 			)}
 
 			{step === 'createResit' && <CreateForm />}
+			<Notification className='absolute top-0 w-content left-5 my-8' icon={<IconCheck size={18} />} color='teal' title='Nouvelle Suppression'>
+				Le rattrapage à bien été supprimé
+			</Notification>
 		</div>
 	);
 };

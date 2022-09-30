@@ -1,9 +1,11 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { getTime } from 'date-fns';
 import { Button } from '@mantine/core';
 import { IconArrowBack } from '@tabler/icons';
 import { useForm } from 'react-hook-form';
 import { useGlobalContext } from '../GlobalContext';
+import { Notification } from '@mantine/core';
+import { IconCheck } from '@tabler/icons';
 
 const CreateForm = () => {
 	const { overseers, teachers, setStep } = useGlobalContext();
@@ -18,11 +20,13 @@ const CreateForm = () => {
 			},
 			body: JSON.stringify({ ...resit, resitDate: getTime(new Date(resit.resitDate)) }),
 		});
+		console.log(typeof ~~resit.teacher_id);
 	};
 
 	return (
 		<>
 			<h2 className='text-center text-2xl font-bold mt-8'>Ajouter un rattrapage</h2>
+
 			<form onSubmit={handleSubmit(addResit)} className='bg-white p-10 m-4 rounded'>
 				<div className='flex flex-col pb-4'>
 					<label className='font-bold text-teal-500'>Nom du Rattrapage</label>
@@ -50,7 +54,9 @@ const CreateForm = () => {
 								Choisir...
 							</option>
 							{teachers.map((teacher) => (
-								<option value={teacher.id}>{teacher.name}</option>
+								<option key={teacher.id} value={teacher.id}>
+									{teacher.name}
+								</option>
 							))}
 						</select>
 					</div>
@@ -61,7 +67,9 @@ const CreateForm = () => {
 								Choisir...
 							</option>
 							{overseers.map((overseer) => (
-								<option value={overseer.id}>{overseer.name}</option>
+								<option key={overseer.id} value={overseer.id}>
+									{overseer.name}
+								</option>
 							))}
 						</select>
 					</div>
@@ -71,6 +79,9 @@ const CreateForm = () => {
 					Créer Rattrapage
 				</Button>
 			</form>
+			<Notification className='absolute w-content left-5 my-8' icon={<IconCheck size={18} />} color='teal' title='Nouvel Ajout'>
+				Le rattrapage à bien été créé
+			</Notification>
 			<IconArrowBack
 				className='absolute top-28 cursor-pointer hover:text-teal-500 transition duration-200 hover:shadow-teal-500 hover:scale-[.9]'
 				size={38}
