@@ -10,6 +10,7 @@ const Overseer = () => {
 
 
 	const [resits, setResits] = useState();
+	const [date, setDate] = useState("");
 	const [grades, setGrades] = useState();
 	const [selectedResit, setSelectedResit] = useState();
 	const [step, setStep] = useState('resitsList');
@@ -25,6 +26,7 @@ const Overseer = () => {
 	}, []);
 
 	const studentList= (row) => {
+		setDate(new Date(row.resitDate));
 		fetch(`http://localhost:9000/gradesbyresit?id=${row.id}`)
 			.then((res) => res.json())
 			.then((data) => setGrades(data))
@@ -34,8 +36,6 @@ const Overseer = () => {
 			setSelectedResit(row);
 	
 	};
-
-
 
 	const resitsHeaders = [
 		{
@@ -94,7 +94,7 @@ const Overseer = () => {
 					Pour le module <span className='font-medium italic uppercase'>{selectedResit.name}</span> du {selectedResit.date}
 				</p>
 
-				<Timer />
+				<Timer date={date} />
 				<IconArrowBack
 					className='absolute top-28 cursor-pointer hover:text-teal-500 transition duration-200 hover:shadow-teal-500 hover:scale-[.9]'
 					size={38}
