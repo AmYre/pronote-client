@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import Table from './Table';
 import format from 'date-fns/format';
 import { useGlobalContext } from '../GlobalContext';
-import { IconArrowBack } from '@tabler/icons';
+import { IconArrowBack, IconCirclePlus } from '@tabler/icons';
+import { ActionIcon } from '@mantine/core';
 
 
 const Teacher = () => {
@@ -81,7 +82,7 @@ const Teacher = () => {
 		setSelectedResit(row);
 
 	};
-	const onSingleDelete = (row) => {
+	const onGradeEdit = (row) => {
 		console.log('delited !', row.id);
 	};
 
@@ -106,6 +107,15 @@ const Teacher = () => {
 
 				<div className='items-center'>
 					<h2 className='text-center text-2xl font-bold m-8'>Liste des Rattrapages</h2>
+
+					<ActionIcon
+						title='Créer un rattrapage'
+						onClick={() => {
+							setStep('createResit');
+						}}
+						className='absolute top-28 right-10 cursor-pointer hover:text-teal-500 transition duration-200 hover:shadow-teal-500 hover:scale-[.9]'>
+						<IconCirclePlus size={32} />
+					</ActionIcon>
 
 					{/* Création d'une boucle avec son bouton pour la selection
 					si il y a des teachers allors
