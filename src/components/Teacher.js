@@ -5,9 +5,7 @@ import { useGlobalContext } from '../GlobalContext';
 import { IconArrowBack, IconCirclePlus } from '@tabler/icons';
 import { ActionIcon } from '@mantine/core';
 
-
 const Teacher = () => {
-
 	const { resits, setResits, grades, setGrades, step, setStep, teachers } = useGlobalContext();
 	const [selectedResit, setSelectedResit] = useState();
 
@@ -26,39 +24,45 @@ const Teacher = () => {
 		},
 		{
 			Header: 'Date',
-			Cell: ({ cell: { row: { original: { resitDate } } } }) => {
-				return format(resitDate, 'dd-MM-yyyy')
-			}
+			Cell: ({
+				cell: {
+					row: {
+						original: { resitDate },
+					},
+				},
+			}) => {
+				return format(resitDate, 'dd-MM-yyyy');
+			},
 		},
 		{
 			Header: 'Professeur',
 			accessor: 'teacher.name',
 		},
 		{
-			Header: "Surveillant",
+			Header: 'Surveillant',
 			accessor: 'overseer.name',
 		},
 		{
-			Header: "Status",
+			Header: 'Status',
 			accessor: 'status',
 		},
 		{
-			Header: "Id du professeur",
+			Header: 'Id du professeur',
 			accessor: 'teacher.id',
 		},
 	];
 
 	const gradesHeaders = [
 		{
-			Header: 'Prenom de l\'étudiant',
+			Header: "Prenom de l'étudiant",
 			accessor: 'student.name',
 		},
 		{
-			Header: 'Nom de l\'étudiant',
+			Header: "Nom de l'étudiant",
 			accessor: 'student.lastName',
 		},
 		{
-			Header: 'Note de l\'étudiant',
+			Header: "Note de l'étudiant",
 			accessor: 'grade',
 		},
 		{
@@ -66,23 +70,21 @@ const Teacher = () => {
 			accessor: 'resit.name',
 		},
 		{
-			Header: "Surveillant",
+			Header: 'Surveillant',
 			accessor: 'resit.overseer.name',
 		},
 	];
 
-
 	const onSelectedResit = (row) => {
 		fetch(`http://localhost:9000/gradesbyresit?id=${row.id}`)
-			.then(responseOnHttp => responseOnHttp.json())
+			.then((responseOnHttp) => responseOnHttp.json())
 			.then((data) => setGrades(data))
-			.catch(error => console.log("catched fetch error :", error))
+			.catch((error) => console.log('catched fetch error :', error));
 
-		setStep('studentList')
+		setStep('studentList');
 		setSelectedResit(row);
-
 	};
-	const onGradeEdit = (row) => {
+	const onSingleDelete = (row) => {
 		console.log('delited !', row.id);
 	};
 
@@ -91,20 +93,17 @@ const Teacher = () => {
 		//Recuperation des info de l'URL envoyer par l'API REST (notre back-end)
 		fetch(`http://localhost:9000/teacherById?id=${id}`)
 			//(.then) en attendant les données envoyer par le back puis les transformé en .json
-			.then(responseOnHttp => responseOnHttp.json())
-			//Les info de notre route URL son récupérer dans  "data" puis son stovké dan setResits pour nous fournir das données utilisable 
-			.then(data => setResits(data))
+			.then((responseOnHttp) => responseOnHttp.json())
+			//Les info de notre route URL son récupérer dans  "data" puis son stovké dan setResits pour nous fournir das données utilisable
+			.then((data) => setResits(data))
 			//Attraper une erreur si elle se produit
-			.catch(error => console.log("catched fetch error :", error))
+			.catch((error) => console.log('catched fetch error :', error));
 		//console.log(id)
-	}
+	};
 
 	return (
-
 		<div className='p-4'>
-
 			{resits && step === 'resitsList' && (
-
 				<div className='items-center'>
 					<h2 className='text-center text-2xl font-bold m-8'>Liste des Rattrapages</h2>
 
@@ -120,28 +119,20 @@ const Teacher = () => {
 					{/* Création d'une boucle avec son bouton pour la selection
 					si il y a des teachers allors
 					nous bouclons sur les teachers pour inclure la fonction créer précédemment filterByTeacherId() */}
-					{teachers && teachers.map(teacher => (
-						<button key={teacher.id} onClick={() => filterByTeacherId(teacher.id)} className='inline-flex font-bold mt-8 mb-8 bg-teal-300 mr-4 px-6 py-2 text-white rounded shadow hover:bg-teal-500 transition duration-300'>
-							{teacher.name}
-						</button>))}
+					{teachers &&
+						teachers.map((teacher) => (
+							<button key={teacher.id} onClick={() => filterByTeacherId(teacher.id)} className='inline-flex font-bold mt-8 mb-8 bg-teal-300 mr-4 px-6 py-2 text-white rounded shadow hover:bg-teal-500 transition duration-300'>
+								{teacher.name}
+							</button>
+						))}
 
 					<Table dataTable={resits} headers={resitsHeaders} onSingleEdit={onSelectedResit} onSingleDelete={onSingleDelete} />
-
 				</div>
-
-
 			)}
 
-			{
-
-
-			}
-
-
-
+			{}
 
 			{grades && step === 'studentList' && (
-
 				<div>
 					<h2 className='text-center text-2xl font-bold m-8'>Liste des élèves</h2>
 
@@ -155,10 +146,7 @@ const Teacher = () => {
 
 					<Table dataTable={grades} headers={gradesHeaders} onSingleEdit={onSelectedResit} onSingleDelete={onSingleDelete} />
 				</div>
-
-
 			)}
-
 		</div>
 	);
 };
