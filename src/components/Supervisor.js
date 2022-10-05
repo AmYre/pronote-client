@@ -29,7 +29,9 @@ const Supervisor = () => {
 				},
 			}) => (
 				<a className='' href={exam} target='_blank' rel='noreferrer'>
-					Voir le Pdf
+					<Button className='shadow text-teal-500 border-teal-500 hover:bg-teal-500 hover:text-white hover:scale-[1.05] transition duration-300' variant='outline'>
+						Imprimer
+					</Button>
 				</a>
 			),
 		},
@@ -56,10 +58,10 @@ const Supervisor = () => {
 			accessor: 'overseer.name',
 		},
 		{
-			Header: "Nombre d'élèves",
+			Header: 'Élèves',
 			Cell: (props) => (
 				<Button className='shadow text-teal-500 border-teal-500 hover:bg-teal-500 hover:text-white hover:scale-[1.05] transition duration-300' variant='outline' onClick={() => showStudents(props.cell.row.original)}>
-					Voir les {props.cell.row.original.id}
+					Voir
 				</Button>
 			),
 		},
