@@ -10,8 +10,8 @@ import { Notification } from '@mantine/core';
 import Table from './Table.js';
 
 const Supervisor = () => {
-	const { resits, grades, setGrades, step, setStep } = useGlobalContext();
-	const [selectedResit, setSelectedResit] = useState();
+	const { resits, grades, setGrades, step, setStep, action, setAction, selectedResit, setSelectedResit } = useGlobalContext();
+	const [toast, setToast] = useState(false);
 
 	const resitsHeaders = [
 		{
@@ -58,7 +58,7 @@ const Supervisor = () => {
 		{
 			Header: "Nombre d'élèves",
 			Cell: (props) => (
-				<Button className='shadow text-teal-500 border-teal-500 hover:bg-teal-500 hover:text-white hover:scale-[1.05] transition duration-300' variant='outline' onClick={() => onSingleEdit(props.cell.row.original)}>
+				<Button className='shadow text-teal-500 border-teal-500 hover:bg-teal-500 hover:text-white hover:scale-[1.05] transition duration-300' variant='outline' onClick={() => showStudents(props.cell.row.original)}>
 					Voir les {props.cell.row.original.id}
 				</Button>
 			),
@@ -97,7 +97,7 @@ const Supervisor = () => {
 		},
 	];
 
-	const onSingleEdit = (row) => {
+	const showStudents = (row) => {
 		fetch(`http://localhost:9000/gradesbyresit?id=${row.id}`)
 			.then((res) => res.json())
 			.then((data) =>
@@ -113,9 +113,22 @@ const Supervisor = () => {
 		setSelectedResit(row);
 	};
 
-	const onSingleDelete = (resit) => {
-		fetch(`http://localhost:9000/delresit/${resit.id}`, { method: 'DELETE' }).then(() => console.log('Delete successful'));
+	const onSingleEdit = (row) => {
+		console.log('err', row);
+		setStep('updateResit');
+		setSelectedResit(row);
 	};
+
+	const onSingleDelete = (resit) => {
+		fetch(`http://localhost:9000/delresit/${resit.id}`, { method: 'DELETE' }).then(() => setToast(true));
+		window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+		setTimeout(() => {
+			setToast(false);
+		}, 3000);
+		setAction('del');
+	};
+
+	console.log('rendered');
 
 	return (
 		<div className='p-4'>
@@ -130,7 +143,19 @@ const Supervisor = () => {
 						className='absolute top-28 right-10 cursor-pointer hover:text-teal-500 transition duration-200 hover:shadow-teal-500 hover:scale-[.9]'>
 						<IconCirclePlus size={32} />
 					</ActionIcon>
-					<Table dataTable={resits} headers={resitsHeaders} onSingleEdit={onSingleEdit} onSingleDelete={onSingleDelete} />
+					<Table dataRefresh={action} dataTable={resits} headers={resitsHeaders} onSingleEdit={onSingleEdit} onSingleDelete={onSingleDelete} />
+					{toast && (
+						<Notification
+							className={`${toast ? 'top-0' : 'top-[-130px]'} absolute transition duration-300 w-content left-1/2 my-8`}
+							icon={<IconCheck size={18} />}
+							color='teal'
+							onClose={() => {
+								setToast(false);
+							}}
+							title='Nouvelle Suppression'>
+							Le rattrapage à bien été supprimé
+						</Notification>
+					)}
 				</>
 			)}
 
@@ -151,10 +176,8 @@ const Supervisor = () => {
 				</>
 			)}
 
-			{step === 'createResit' && <CreateForm />}
-			<Notification className='absolute top-0 w-content left-5 my-8' icon={<IconCheck size={18} />} color='teal' title='Nouvelle Suppression'>
-				Le rattrapage à bien été supprimé
-			</Notification>
+			{step === 'createResit' && <CreateForm step={step} data={selectedResit} />}
+			{step === 'updateResit' && <CreateForm step={step} data={selectedResit} />}
 		</div>
 	);
 };

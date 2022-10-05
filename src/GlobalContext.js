@@ -4,10 +4,12 @@ const GlobalContext = createContext();
 
 const ContextProvider = ({ children }) => {
 	const [resits, setResits] = useState();
+	const [selectedResit, setSelectedResit] = useState();
 	const [grades, setGrades] = useState();
 	const [overseers, setOverseers] = useState();
 	const [teachers, setTeachers] = useState();
 	const [step, setStep] = useState('resitsList');
+	const [action, setAction] = useState('null');
 
 	useEffect(() => {
 		fetch('http://localhost:9000/resits')
@@ -29,13 +31,15 @@ const ContextProvider = ({ children }) => {
 			.then((res) => res.json())
 			.then((data) => setTeachers(data))
 			.catch((err) => console.log('catched fetch error :', err));
-	}, []);
+	}, [action]);
 
 	return (
 		<GlobalContext.Provider
 			value={{
 				resits,
 				setResits,
+				selectedResit,
+				setSelectedResit,
 				grades,
 				setGrades,
 				overseers,
@@ -44,6 +48,8 @@ const ContextProvider = ({ children }) => {
 				setTeachers,
 				step,
 				setStep,
+				action,
+				setAction,
 			}}>
 			{children}
 		</GlobalContext.Provider>
